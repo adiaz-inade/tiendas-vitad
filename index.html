@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#00879B">
+<title>Vitad · Inventario en tienda</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--tinta:#101820;--banner:#00879B;--acento:#00BED6;--fondo:#fff;--gris:#EEF4F6;--linea:#C9D8DD;--sutil:#51606B;
+--alerta:#8C1D18;--alerta-f:#FBECEA;--espera:#7A4E00;--espera-f:#FBF2E2;--ok:#1B5E43;--ok-f:#E6F2EC}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--tinta);background:var(--fondo);font-size:16px;line-height:1.4}
+header{background:var(--banner);color:#fff;padding:calc(.9rem + env(safe-area-inset-top,0px)) 1rem .9rem}
+header h1{margin:0;font-size:1.15rem;font-weight:700}
+header p{margin:.25rem 0 0;font-size:.8rem;opacity:.92}
+main{max-width:44rem;margin:0 auto;padding:1rem 1rem calc(5rem + env(safe-area-inset-bottom))}
+input[type=search],input[type=text],input[type=number],textarea{width:100%;font:inherit;font-size:1rem;padding:.7rem .8rem;border:2px solid var(--linea);border-radius:.6rem;outline:none;-webkit-appearance:none;background:#fff;color:var(--tinta)}
+input:focus,textarea:focus{border-color:var(--banner)}
+textarea{min-height:5rem;resize:vertical}
+.ayuda{color:var(--sutil);font-size:.85rem;margin:.5rem 0 1rem}
+ul.res{list-style:none;margin:0;padding:0}
+ul.res li button{all:unset;display:block;width:100%;box-sizing:border-box;padding:.75rem .2rem;border-bottom:1px solid var(--linea);cursor:pointer;min-height:2.6rem}
+ul.res li button:focus-visible{outline:2px solid var(--banner);outline-offset:2px}
+.rn{font-weight:600}.rm{font-size:.8rem;color:var(--sutil)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;font:inherit;font-size:.9rem;background:var(--gris);color:var(--tinta);border:1px solid var(--linea);border-radius:.5rem;padding:.5rem .8rem;min-height:2.4rem;cursor:pointer}
+.btn.prim{background:var(--banner);color:#fff;border-color:var(--banner);font-weight:600;font-size:1rem;min-height:2.9rem;width:100%}
+.btn.prim[disabled]{opacity:.45;cursor:not-allowed}
+.barra{display:flex;gap:.5rem;justify-content:space-between;margin-bottom:.8rem}
+h2{font-size:1.2rem;margin:.2rem 0 .1rem}
+h3.sec{font-size:1rem;margin:1.3rem 0 .5rem}
+.meta{color:var(--sutil);font-size:.85rem;margin:0 0 .6rem}
+.visitas{background:var(--gris);border-radius:.5rem;padding:.5rem .7rem;font-size:.88rem;margin:.35rem 0 .6rem;font-variant-numeric:tabular-nums}
+.visitas .vm{font-size:.72rem;color:var(--sutil);margin-top:.15rem}
+.aviso{border-radius:.5rem;padding:.6rem .75rem;font-size:.88rem;margin:.6rem 0}
+.aviso.espera{background:var(--espera-f);color:var(--espera)}
+.aviso.alerta{background:var(--alerta-f);color:var(--alerta)}
+.aviso.ok{background:var(--ok-f);color:var(--ok)}
+.aviso.gris{background:var(--gris);color:var(--tinta)}
+.cifras{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin:.7rem 0 1rem}
+.cifra{background:var(--gris);border-radius:.6rem;padding:.6rem .7rem}
+.cifra b{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
+.cifra span{font-size:.78rem;color:var(--sutil)}
+.cifra.rojo{background:var(--alerta-f)}.cifra.rojo b{color:var(--alerta)}
+.cifra.ambar{background:var(--espera-f)}.cifra.ambar b{color:var(--espera)}
+section.caja{border:1px solid var(--linea);border-radius:.6rem;margin:0 0 .9rem;overflow:hidden}
+section.caja>h3{margin:0;font-size:.95rem;padding:.6rem .75rem}
+section.caja.alerta>h3{background:var(--alerta-f);color:var(--alerta)}
+section.caja.espera>h3{background:var(--espera-f);color:var(--espera)}
+section.caja.gris>h3{background:var(--gris)}
+section.caja.din>h3{background:#E3F4F7;color:#005F6D}
+section.caja.din .n .g{display:block;margin-top:.15rem}
+section.caja.din .fila .c{white-space:normal;max-width:38%}
+.etq.pr{background:#005F6D;color:#fff}
+.fila{display:flex;justify-content:space-between;gap:.6rem;padding:.55rem .75rem;border-top:1px solid var(--linea);font-size:.9rem}
+.fila .n{flex:1;min-width:0}
+.fila .c{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.fila .g{display:block;font-size:.75rem;color:var(--sutil)}
+.preg{padding:.6rem .75rem;border-top:1px solid var(--linea)}
+.preg .q{font-size:.9rem;font-weight:600}
+.preg .d{font-size:.78rem;color:var(--sutil);margin:.1rem 0 .4rem;font-variant-numeric:tabular-nums}
+.ops{display:flex;flex-wrap:wrap;gap:.35rem}
+.ops button{font:inherit;font-size:.86rem;padding:.45rem .65rem;min-height:2.3rem;border-radius:.5rem;border:1px solid var(--linea);background:#fff;color:var(--tinta);cursor:pointer}
+.ops button[aria-pressed=true]{background:var(--banner);border-color:var(--banner);color:#fff;font-weight:600}
+.ops.alerta button[aria-pressed=true]{background:var(--alerta);border-color:var(--alerta)}
+.campo{margin:.5rem 0}
+.campo label{display:block;font-size:.85rem;font-weight:600;margin-bottom:.3rem}
+.miniaturas{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+.miniaturas figure{margin:0;position:relative}
+.miniaturas img{width:4.6rem;height:4.6rem;object-fit:cover;border-radius:.4rem;border:1px solid var(--linea);display:block}
+.miniaturas button{position:absolute;top:-.4rem;right:-.4rem;width:1.6rem;height:1.6rem;border-radius:50%;border:none;background:var(--alerta);color:#fff;font-size:.9rem;cursor:pointer;line-height:1}
+label.foto{display:inline-flex;align-items:center;gap:.35rem;font-size:.9rem;padding:.5rem .8rem;min-height:2.4rem;border-radius:.5rem;border:1px dashed var(--banner);color:var(--banner);cursor:pointer;font-weight:600}
+label.foto input{position:absolute;opacity:0;width:1px;height:1px}
+details.grupo{border:1px solid var(--linea);border-radius:.6rem;margin:0 0 .7rem;overflow:hidden}
+details.grupo>summary{list-style:none;cursor:pointer;padding:.7rem .75rem;background:var(--gris);display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;min-height:2.6rem}
+details.grupo>summary::-webkit-details-marker{display:none}
+details.grupo>summary .t{font-weight:700}
+details.grupo>summary .s{font-size:.8rem;color:var(--sutil);white-space:nowrap;font-variant-numeric:tabular-nums}
+details.grupo>summary .t::before{content:"▸ ";color:var(--banner)}
+details.grupo[open]>summary .t::before{content:"▾ "}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th,td{padding:.45rem .5rem;border-top:1px solid var(--linea);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th{font-size:.72rem;color:var(--sutil);font-weight:600;background:#fff}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+tr.a td{background:var(--espera-f)}tr.z td{background:var(--alerta-f)}
+tr.a td:first-child,tr.z td:first-child{font-weight:600}
+.etq{display:inline-block;font-size:.68rem;border-radius:.3rem;padding:.05rem .3rem;margin-left:.25rem;vertical-align:middle}
+.etq.a{background:var(--espera);color:#fff}.etq.up{background:var(--ok);color:#fff}.etq.down{background:var(--alerta);color:#fff}.etq.eq{background:var(--sutil);color:#fff}.etq.new{background:var(--banner);color:#fff}.etq.z{background:var(--alerta);color:#fff}.etq.x{background:var(--sutil);color:#fff}
+#estado{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--linea);padding:.55rem 1rem calc(.55rem + env(safe-area-inset-bottom));font-size:.82rem;display:flex;gap:.6rem;align-items:center;justify-content:space-between}
+#estado.oculto{display:none}
+#estado.rojo{background:var(--alerta-f);color:var(--alerta)}
+footer{color:var(--sutil);font-size:.78rem;margin-top:1.4rem;border-top:1px solid var(--linea);padding-top:.8rem}
+footer p{margin:.35rem 0}
+.oculto{display:none}
+@media(min-width:34rem){.cifras{grid-template-columns:repeat(4,1fr)}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Vitad · Inventario en tienda</h1>
+  <p id="cortes">Cargando…</p>
+</header>
+<main>
+  <div id="vBuscar">
+    <label for="q" class="ayuda" style="display:block;margin:0 0 .4rem">Busque su tienda por nombre, número o ciudad</label>
+    <input id="q" type="search" autocomplete="off" placeholder="Ej.: Carulla 184, Jumbo Calle 80, Olímpica Barranquilla">
+    <p class="ayuda" id="nres"></p>
+    <ul class="res" id="res"></ul>
+  </div>
+  <div id="vTienda" class="oculto"></div>
+  <div id="vVisita" class="oculto"></div>
+  <footer id="pie"></footer>
+</main>
+<div id="estado" class="oculto"><span id="estadoTxt"></span><button type="button" class="btn" id="reintentar">Enviar ahora</button></div>
+<script>
+(function(){
+"use strict";
+var IND=null, META=null, TIENDA=null, V=null;
+var VERSION="visita-1.0";
+var $=function(id){return document.getElementById(id)};
+var MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var SECCIONES=[
+  {k:"saludable",n:"Saludable",g:"Saludable"},
+  {k:"pasteleria",n:"Masivos pastelería",g:"Masivos pastelería"},
+  {k:"snacks",n:"Masivos snacks",g:"Masivos snacks"},
+  {k:"lactea",n:"Bebida láctea",g:"Láctea"},
+  {k:"otras",n:"Otras / adicionales",g:null}
+];
+var OPC_REVISAR=["En góndola","En bodega sin surtir","Ajustar inventario"];
+var OPC_DEJO=["En góndola","No está en la tienda","Agotada en góndola"];
+function fnum(x){return x==null?"—":Number(x).toLocaleString("es-CO",{maximumFractionDigits:0})}
+function fdia(s){var p=s.split("-");return parseInt(p[2],10)+"-"+MESES[parseInt(p[1],10)-1]}
+function fdias(d){if(d==null)return "sin venta";return d>365?"más de 365":fnum(d)}
+function fsv(s){if(s==null)return "sin venta en el último año";if(s===0)return "vendió el último día con venta";return fnum(s)+" días"}
+function norm(s){return String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/\s+/g," ").trim()}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function ahora(){var d=new Date(),z=function(n){return String(n).padStart(2,"0")};return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+" "+z(d.getHours())+":"+z(d.getMinutes())+":"+z(d.getSeconds())}
+function uid(){try{return crypto.randomUUID()}catch(e){return "v"+Date.now().toString(36)+Math.random().toString(36).slice(2,10)}}
+
+/* ------------------------------------------------------------ almacenamiento local */
+var LS={get:function(k,def){try{var v=localStorage.getItem(k);return v==null?def:JSON.parse(v)}catch(e){return def}},
+        set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}},
+        del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
+var LS_OK=(function(){try{localStorage.setItem("_p","1");localStorage.removeItem("_p");return true}catch(e){return false}})();
+var DB=null, MEMFOTOS={}, MEMCOLA={};
+function abrirDB(){return new Promise(function(ok){
+  try{var r=indexedDB.open("vitad_visitas",1);
+    r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains("fotos"))d.createObjectStore("fotos",{keyPath:"id"});if(!d.objectStoreNames.contains("cola"))d.createObjectStore("cola",{keyPath:"visita_id"})};
+    r.onsuccess=function(){DB=r.result;
+      /* Safari cierra la conexion al ir a la camara o al fondo: se marca cerrada y se reabre en el proximo uso */
+      DB.onclose=function(){DB=null};
+      DB.onversionchange=function(){try{DB.close()}catch(e){}DB=null};
+      ok(true)};
+    r.onerror=function(){ok(false)};r.onblocked=function(){ok(false)};
+  }catch(e){ok(false)}})}
+var SIN_IDB=false;
+function conDB(){if(DB||SIN_IDB)return Promise.resolve();return abrirDB().then(function(x){if(!x)SIN_IDB=true})}
+function memoria(store,modo,fn){var M=store==="fotos"?MEMFOTOS:MEMCOLA;
+  if(modo==="readonly")return Object.keys(M).map(function(k){return M[k]});
+  return fn({put:function(o){M[o.id||o.visita_id]=o},delete:function(k){delete M[k]}})}
+function txUnaVez(store,modo,fn){return new Promise(function(ok,mal){
+  var t;try{t=DB.transaction(store,modo)}catch(e){mal(e);return}
+  var s=t.objectStore(store),res;
+  if(modo==="readonly"){var q=s.getAll();q.onsuccess=function(){ok(q.result)};q.onerror=function(){mal(q.error)};return}
+  try{res=fn({put:function(o){s.put(o)},delete:function(k){s.delete(k)}})}catch(e){mal(e);return}
+  t.oncomplete=function(){ok(res)};t.onerror=function(){mal(t.error)};t.onabort=function(){mal(t.error||new Error("abort"))};})}
+function tx(store,modo,fn){
+  return conDB().then(function(){
+    if(!DB)return memoria(store,modo,fn);
+    return txUnaVez(store,modo,fn).catch(function(e){
+      /* conexion cerrada o perdida: reabrir y reintentar una vez */
+      try{DB&&DB.close()}catch(_){}DB=null;
+      return conDB().then(function(){if(!DB)return memoria(store,modo,fn);return txUnaVez(store,modo,fn)});
+    });
+  })}
+function todas(store){return tx(store,"readonly")}
+
+/* ------------------------------------------------------------ inventario (vista de tienda) */
+function pintarCortes(){
+  var partes=[];
+  Object.keys(META.cadenas).forEach(function(c){partes.push(c+": inventario al "+fdia(META.cadenas[c].foto_mas_reciente)+", venta al "+fdia(META.cadenas[c].venta_hasta))});
+  if(META.sellin&&META.sellin.hasta)partes.push("Sell-in al "+fdia(META.sellin.hasta));
+  $("cortes").textContent=partes.join(" · ");
+  var pie=$("pie");pie.textContent="";
+  ["Existencias: unidades del último inventario que reportó la tienda. Cada tienda muestra la fecha de ese inventario.",
+   "Días de inventario: existencias divididas por la venta diaria promedio de los últimos "+META.ventana+" días.",
+   "Revise primero: referencias con existencias y más de "+META.umbral_sin_venta+" días sin venta. Los días se cuentan hasta la última fecha con venta de la cadena, que se actualiza cada semana. Suelen estar en bodega o mal exhibidas.",
+   "Agotada: cero existencias en el último inventario, con venta en los últimos "+META.ventana+" días.",
+   "Tiendas sin inventario de la cadena: muestran despachos de Alquería (sell-in) de los últimos "+(META.sellin?META.sellin.ventana:30)+" días con dato, comparados con el promedio de los "+(META.sellin?META.sellin.periodos:6)+" periodos de 30 días anteriores. Por encima o por debajo: más de "+Math.round((META.sellin?META.sellin.umbral:0.2)*100)+" % de diferencia.",
+   "Dejó de pedir: referencia vigente con despacho en al menos "+(META.sellin?META.sellin.min_periodos:3)+" de esos periodos y sin despacho en los últimos "+(META.sellin?META.sellin.dias_sin_pedido:45)+" días.",
+   "Fuente: reportes de venta e inventario de cada cadena y sell-in de Alquería. Actualizado el "+META.generado.replace(" "," a las ")+"."
+  ].forEach(function(t){pie.appendChild(el("p",null,t))});
+}
+function buscar(){
+  var q=norm($("q").value), ul=$("res"); ul.textContent="";
+  if(q.length<2){$("nres").textContent=IND.length+" tiendas. Escriba al menos dos letras.";return}
+  var pal=q.split(" "), hits=IND.filter(function(t){return pal.every(function(p){return t.k.indexOf(p)>=0})});
+  $("nres").textContent=hits.length===0?"No encontré tiendas con ese nombre.":(hits.length>40?"Mostrando 40 de "+hits.length+". Escriba más para acotar.":hits.length+(hits.length===1?" tienda":" tiendas"));
+  hits.slice(0,40).forEach(function(t){
+    var li=el("li"), b=el("button"); b.type="button";
+    b.appendChild(el("div","rn",t.n));
+    b.appendChild(el("div","rm",[t.c===t.b||!t.b?t.c:t.c+" · "+t.b,t.ci,t.f?(t.tp==="s"?"despacho al ":"inventario al ")+fdia(t.f):"exhibición pagada"].filter(Boolean).join(" · ")));
+    b.addEventListener("click",function(){abrir(t.id,true)});
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+function cifra(valor,rotulo,cls){var d=el("div","cifra"+(cls?" "+cls:""));d.appendChild(el("b",null,valor));d.appendChild(el("span",null,rotulo));return d}
+function listaCaja(titulo,cls,filas){
+  var s=el("section","caja "+cls); s.appendChild(el("h3",null,titulo));
+  filas.forEach(function(f){var r=el("div","fila");var n=el("div","n");n.appendChild(document.createTextNode(f.n));n.appendChild(el("span","g",f.g));r.appendChild(n);r.appendChild(el("div","c",f.c));s.appendChild(r)});
+  return s;
+}
+function refsMarcadas(j){
+  if(j.tipo==="sellin")return {rev:[],ago:[],dejo:j.dejo||[]};
+  var rev=[],ago=[];
+  j.grupos.forEach(function(g){g.refs.forEach(function(r){
+    if(r.a)rev.push({n:r.n,ean:r.ean,g:g.g,e:r.e,s:r.s,v:r.v});
+    if(r.z)ago.push({n:r.n,ean:r.ean,g:g.g,e:r.e,s:r.s,v:r.v});
+  })});
+  rev.sort(function(a,b){return b.e-a.e}); ago.sort(function(a,b){return b.v-a.v});
+  return {rev:rev,ago:ago,dejo:[]};
+}
+var MESES_LARGO=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function lineaVisitas(vi){
+  var d=el("div","visitas"), mes=vi.mes?MESES_LARGO[parseInt(vi.mes.slice(5,7),10)-1]:"";
+  var ef=vi.ef&&vi.ef.length, mc=!!vi.mc;
+  var f1=el("div");f1.appendChild(el("b",null,"Eficacia: "));
+  f1.appendChild(document.createTextNode(ef?vi.ef.join(" · ")+(vi.ef_nota?" ("+vi.ef_nota+")":""):"sin visita en el rutero"));d.appendChild(f1);
+  var f2=el("div");f2.appendChild(el("b",null,"Mercadeo compartido: "));
+  f2.appendChild(document.createTextNode(mc?vi.mc+", sin día fijo en el archivo":"sin visita"));d.appendChild(f2);
+  if(mes)d.appendChild(el("div","vm","Rutero de "+mes));
+  return d;
+}
+function fvig(r){return (r.ini===r.fin?"el "+fdia(r.ini):"del "+fdia(r.ini)+" al "+fdia(r.fin))+(r.ini>META.hoy?" · próxima":"")}
+function gruposPromo(promo){var G=[],ix={};(promo||[]).forEach(function(r,i){var k=r.ev+"|"+r.ini+"|"+r.fin;
+  if(!(k in ix)){ix[k]=G.length;G.push({ev:r.ev,ini:r.ini,fin:r.fin,i:i,items:[]})}G[ix[k]].items.push(r)});return G}
+function cajaDinamicas(j){
+  var d=j.din; if(!d||(!d.exh.length&&!d.promo.length))return null;
+  var s=el("section","caja din");
+  s.appendChild(el("h3",null,"Dinámicas comerciales vigentes y de los próximos "+META.din.dias+" días"));
+  d.exh.forEach(function(r){var f=el("div","fila"),n=el("div","n");
+    n.appendChild(document.createTextNode("Exhibición pagada: "+r.tipo));n.appendChild(el("span","g",r.plan+(r.neg&&r.neg!==r.plan?" · "+r.neg:"")));
+    f.appendChild(n);f.appendChild(el("div","c",fvig(r)));s.appendChild(f)});
+  gruposPromo(d.promo).forEach(function(G){var f=el("div","fila"),n=el("div","n");
+    n.appendChild(document.createTextNode("Promoción: "+G.ev));
+    G.items.forEach(function(r){var l=el("span","g");l.appendChild(el("span","etq pr",r.dcto));l.appendChild(document.createTextNode(" "+r.ref));
+      if(r.agot)l.appendChild(el("span","etq z","agotada en esta tienda"));n.appendChild(l)});
+    f.appendChild(n);f.appendChild(el("div","c",fvig(G)));s.appendChild(f)});
+  return s}
+function pintarTienda(j){
+  if(j.tipo==="sellin"){pintarTiendaSellin(j);return}
+  var v=$("vTienda"); v.textContent="";
+  var barra=el("div","barra");
+  var volver=el("button","btn","← Buscar otra tienda"); volver.type="button";
+  volver.addEventListener("click",function(){history.pushState(null,"",location.pathname);mostrar("vBuscar")});
+  var comp=el("button","btn","Compartir"); comp.type="button";
+  comp.addEventListener("click",function(){
+    var url=location.origin+location.pathname+"?t="+encodeURIComponent(j.id);
+    if(navigator.share){navigator.share({title:j.tienda,url:url}).catch(function(){})}
+    else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){comp.textContent="Link copiado"},function(){prompt("Copie el link:",url)})}
+    else{prompt("Copie el link:",url)}
+  });
+  barra.appendChild(volver); barra.appendChild(comp); v.appendChild(barra);
+  v.appendChild(el("h2",null,j.tienda));
+  v.appendChild(lineaVisitas(j.visitas||{}));
+  v.appendChild(el("p","meta",[j.cadena===j.bandera?j.cadena:j.cadena+" · "+j.bandera,j.ciudad,j.canal?"Canal "+j.canal:null].filter(Boolean).join(" · ")));
+  v.appendChild(el("p","meta","Inventario al "+fdia(j.foto)+" · venta hasta el "+fdia(j.venta_hasta)));
+  if(j.vieja){v.appendChild(el("div","aviso espera","Esta tienda no reporta inventario desde el "+fdia(j.foto)+", "+j.rezago+" días antes que el resto de la cadena. Las cifras pueden no reflejar la góndola de hoy."))}
+  var reg=el("button","btn prim","Registrar visita a esta tienda"); reg.type="button";
+  reg.addEventListener("click",function(){history.pushState({t:j.id,v:1},"","?t="+encodeURIComponent(j.id)+"&visita=1");abrirVisita()});
+  v.appendChild(reg);
+  var T=j.total, c=el("div","cifras");
+  c.appendChild(cifra(fnum(T.e),"unidades en existencia"));
+  c.appendChild(cifra(fdias(T.d),"días de inventario",T.d!=null&&T.d<META.riesgo_dias?"rojo":null));
+  c.appendChild(cifra(fnum(T.na),"para revisar",T.na>0?"ambar":null));
+  c.appendChild(cifra(fnum(T.ag),"agotadas",T.ag>0?"rojo":null));
+  v.appendChild(c);
+  var dv=Math.round((new Date(META.hoy)-new Date(j.venta_hasta))/864e5);
+  if(dv>META.aviso_venta_dias)v.appendChild(el("div","aviso espera","La venta de esta cadena llega hasta el "+fdia(j.venta_hasta)+". Los días sin venta pueden estar desactualizados."));
+  var m=refsMarcadas(j);
+  if(m.rev.length)v.appendChild(listaCaja("Revise primero: con existencias y más de "+META.umbral_sin_venta+" días sin venta al "+fdia(j.venta_hasta)+" ("+m.rev.length+")","espera",m.rev.map(function(r){return{n:r.n,g:r.g,c:fnum(r.e)+" unid · "+fsv(r.s)}})));
+  var cd=cajaDinamicas(j);if(cd)v.appendChild(cd);
+  if(m.ago.length)v.appendChild(listaCaja("Agotadas: sin existencias y con venta reciente ("+m.ago.length+")","alerta",m.ago.map(function(r){return{n:r.n,g:r.g,c:fnum(r.v)+" vendidas en "+META.ventana+" d"}})));
+  if(!m.rev.length&&!m.ago.length)v.appendChild(el("div","aviso ok","Todo en orden: ninguna referencia lleva más de "+META.umbral_sin_venta+" días sin venta y ninguna está agotada."));
+  j.grupos.forEach(function(g){
+    var d=el("details","grupo"); if(g.na||g.ag)d.open=true;
+    var s=el("summary"); s.appendChild(el("span","t",g.g));
+    s.appendChild(el("span","s",fnum(g.e)+" unid · "+fdias(g.d)+(g.d!=null?" días":"")));
+    d.appendChild(s);
+    var tb=el("table"), th=el("tr");
+    ["Referencia","Unid","Días","Vta "+META.ventana+"d","Sin venta"].forEach(function(h){th.appendChild(el("th",null,h))});
+    var thead=el("thead");thead.appendChild(th);tb.appendChild(thead);var body=el("tbody");
+    g.refs.forEach(function(r){
+      var tr=el("tr",r.z?"z":(r.a?"a":null)), td=el("td",null,r.n);
+      if(r.a)td.appendChild(el("span","etq a","revisar")); if(r.z)td.appendChild(el("span","etq z","agotada")); if(r.x)td.appendChild(el("span","etq x","descontinuada"));
+      tr.appendChild(td);
+      tr.appendChild(el("td",null,fnum(r.e)));
+      tr.appendChild(el("td",null,r.d==null?"—":(r.d>365?">365":fnum(r.d))));
+      tr.appendChild(el("td",null,fnum(r.v)));
+      tr.appendChild(el("td",null,r.s==null?"> 1 año":(r.s===0?"0 d":fnum(r.s)+" d")));
+      body.appendChild(tr);
+    });
+    tb.appendChild(body); d.appendChild(tb); v.appendChild(d);
+  });
+}
+
+var TEND={"Por encima":"up","Por debajo":"down","En línea":"eq","Nueva":"new","Cliente nuevo":"new"};
+function pintarTiendaSellin(j){
+  var v=$("vTienda"); v.textContent="";
+  var barra=el("div","barra");
+  var volver=el("button","btn","← Buscar otra tienda"); volver.type="button";
+  volver.addEventListener("click",function(){history.pushState(null,"",location.pathname);mostrar("vBuscar")});
+  var comp=el("button","btn","Compartir"); comp.type="button";
+  comp.addEventListener("click",function(){var url=location.origin+location.pathname+"?t="+encodeURIComponent(j.id);
+    if(navigator.share){navigator.share({title:j.tienda,url:url}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){comp.textContent="Link copiado"},function(){prompt("Copie el link:",url)})}else{prompt("Copie el link:",url)}});
+  barra.appendChild(volver);barra.appendChild(comp);v.appendChild(barra);
+  v.appendChild(el("h2",null,j.tienda));
+  v.appendChild(lineaVisitas(j.visitas||{}));
+  v.appendChild(el("p","meta",[j.cadena,j.ciudad,j.canal?"Canal "+j.canal:null].filter(Boolean).join(" · ")));
+  if(j.despacho_desde)v.appendChild(el("p","meta","Despachos de Alquería del "+fdia(j.despacho_desde)+" al "+fdia(j.despacho_hasta)));
+  if(j.en_rutero===false&&!j.exh_sin_despacho)v.appendChild(el("div","aviso espera","Esta tienda no está en el rutero de Eficacia. Recibe producto Vitad, pero nadie la visita hoy."));
+  if(!j.exh_sin_despacho)v.appendChild(el("div","aviso gris","Esta tienda no reporta inventario ni venta al consumidor. Las cifras son despachos de Alquería a la tienda (sell-in), no venta en góndola."));
+  var reg=el("button","btn prim","Registrar visita a esta tienda"); reg.type="button";
+  reg.addEventListener("click",function(){history.pushState({t:j.id,v:1},"","?t="+encodeURIComponent(j.id)+"&visita=1");abrirVisita()});
+  v.appendChild(reg);
+  if(j.exh_sin_despacho){v.appendChild(el("div","aviso alerta","Exhibición pagada sin despachos de Vitad: esta tienda tiene una exhibición pagada y no recibe producto Vitad, ni reporta inventario."));
+    var cx=cajaDinamicas(j);if(cx)v.appendChild(cx);return}
+  if(j.sin_detalle){var cs=cajaDinamicas(j);if(cs)v.appendChild(cs);v.appendChild(el("div","aviso espera","El sell-in de esta cadena llega sin código de tienda: varias tiendas comparten el mismo nombre de cliente. Por eso no se pueden mostrar los despachos de esta tienda."));
+    if(j.ver){var lk=el("button","btn","Ver despachos del nombre "+j.ver.n+" ("+j.ver.ncod+" tiendas)");lk.type="button";
+      lk.addEventListener("click",function(){abrir(j.ver.id,true)});v.appendChild(lk)}
+    return}
+  if(j.agrupa)v.appendChild(el("div","aviso espera","Este nombre de cliente agrupa "+j.agrupa+" códigos de tienda en el sell-in. Las cifras suman los despachos de todas esas tiendas."));
+  if(j.sin_codigo)v.appendChild(el("div","aviso espera","Este cliente no está en el archivo de códigos del sell-in. No se puede cruzar con el rutero."));
+  if(j.ult_despacho&&j.total&&!j.total.u30)v.appendChild(el("div","aviso alerta","Dejó de pedir: último despacho de Vitad el "+fdia(j.ult_despacho)+"."));
+  if(j.cliente_nuevo)v.appendChild(el("div","aviso ok","Cliente nuevo: el primer despacho de Vitad llegó en los últimos "+META.sellin.ventana+" días."));
+  var T=j.total,c=el("div","cifras");
+  c.appendChild(cifra(fnum(T.u30),"unidades despachadas en "+META.sellin.ventana+" días"));
+  c.appendChild(cifra(fnum(T.prom),"promedio cada 30 días antes"));
+  c.appendChild(cifra(fnum(T.nrefs),"referencias despachadas"));
+  c.appendChild(cifra(fnum(T.ndejo),"dejó de pedir",T.ndejo>0?"rojo":null));
+  v.appendChild(c);
+  var cd=cajaDinamicas(j);if(cd)v.appendChild(cd);
+  if(j.dejo.length)v.appendChild(listaCaja("Dejó de pedir ("+j.dejo.length+"): la pedía seguido y no la pide hace más de "+META.sellin.dias_sin_pedido+" días","alerta",
+    j.dejo.map(function(r){return{n:r.n,g:r.g,c:"pedía "+fnum(r.prom)+" cada 30 d · último "+fdia(r.ult)}})));
+  if(!T.nrefs)v.appendChild(el("div","aviso espera","Sin despachos de Vitad en los últimos "+META.sellin.ventana+" días."));
+  j.grupos.forEach(function(g){
+    var d=el("details","grupo");d.open=true;var s=el("summary");s.appendChild(el("span","t",g.g));
+    s.appendChild(el("span","s",fnum(g.u30)+" unid · prom. "+fnum(g.prom)));d.appendChild(s);
+    var tb=el("table"),th=el("tr");["Referencia","Unid "+META.sellin.ventana+"d","Prom. 30d","Comparación"].forEach(function(x){th.appendChild(el("th",null,x))});
+    var thead=el("thead");thead.appendChild(th);tb.appendChild(thead);var body=el("tbody");
+    g.refs.forEach(function(r){var tr=el("tr");tr.appendChild(el("td",null,r.n));tr.appendChild(el("td",null,fnum(r.u30)));
+      tr.appendChild(el("td",null,r.prom?r.prom.toLocaleString("es-CO",{maximumFractionDigits:1}):"—"));
+      var td=el("td");td.appendChild(el("span","etq "+(TEND[r.t]||"eq"),r.t));tr.appendChild(td);body.appendChild(tr)});
+    tb.appendChild(body);d.appendChild(tb);v.appendChild(d)});
+}
+
+/* ------------------------------------------------------------ visita */
+function claveBorrador(){return "vitad_borrador_"+TIENDA.id}
+function guardarBorrador(){if(V)LS.set(claveBorrador(),V)}
+function nuevaVisita(){return {visita_id:uid(),tienda_id:TIENDA.id,inicio:ahora(),checkin:null,r:{},horas:{}}}
+function marcar(k,valor){
+  if(V.r[k]===valor){delete V.r[k];delete V.horas[k]}else{V.r[k]=valor;V.horas[k]=ahora()}
+  guardarBorrador();
+}
+function grupoBotones(k,opciones,cls){
+  var d=el("div","ops"+(cls?" "+cls:""));
+  opciones.forEach(function(o){
+    var b=el("button",null,o); b.type="button"; b.setAttribute("aria-pressed",V.r[k]===o?"true":"false");
+    b.addEventListener("click",function(){marcar(k,o);Array.prototype.forEach.call(d.children,function(x){x.setAttribute("aria-pressed",V.r[k]===x.textContent?"true":"false")});actualizarBoton()});
+    d.appendChild(b);
+  });
+  return d;
+}
+function campoTexto(k,rotulo,tipo,ph){
+  var c=el("div","campo"), l=el("label",null,rotulo), i=el(tipo==="area"?"textarea":"input");
+  var idc="c_"+k.replace(/[^\w]/g,"_"); l.htmlFor=idc; i.id=idc;
+  if(tipo!=="area"){i.type=tipo||"text"} if(tipo==="number"){i.inputMode="numeric";i.min="0"}
+  if(ph)i.placeholder=ph; i.value=V.r[k]||"";
+  i.addEventListener("input",function(){var x=i.value.trim();if(x){V.r[k]=x;V.horas[k]=ahora()}else{delete V.r[k];delete V.horas[k]}guardarBorrador()});
+  c.appendChild(l);c.appendChild(i);return c;
+}
+function distanciaM(a,b,c,d){var R=6371000,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)*Math.sin(y/2);return Math.round(2*R*Math.asin(Math.sqrt(h)))}
+
+function comprimir(file){return new Promise(function(ok,mal){
+  var img=new Image(), url=URL.createObjectURL(file);
+  img.onload=function(){var M=1280,w=img.naturalWidth,h=img.naturalHeight,s=Math.min(1,M/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);
+    var c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);URL.revokeObjectURL(url);
+    ok(c.toDataURL("image/jpeg",0.72).split(",")[1])};
+  img.onerror=function(){URL.revokeObjectURL(url);mal(new Error("imagen"))};img.src=url;})}
+
+function seccionFotos(sec,cont){
+  var mini=el("div","miniaturas");
+  function pintar(){todas("fotos").then(function(fs){mini.textContent="";
+    fs.filter(function(f){return f.visita_id===V.visita_id&&f.seccion===sec.k&&f.estado==="borrador"}).forEach(function(f){
+      var fig=el("figure"),im=el("img");im.src="data:image/jpeg;base64,"+f.data;im.alt="Foto "+sec.n;
+      var x=el("button",null,"×");x.type="button";x.setAttribute("aria-label","Quitar foto");
+      x.addEventListener("click",function(){tx("fotos","readwrite",function(s){s.delete(f.id)}).then(pintar).then(actualizarBoton)});
+      fig.appendChild(im);fig.appendChild(x);mini.appendChild(fig)})})}
+  var lab=el("label","foto"),inp=el("input");inp.type="file";inp.accept="image/*";inp.multiple=true;
+  lab.appendChild(document.createTextNode("＋ Agregar fotos"));lab.appendChild(inp);
+  inp.addEventListener("change",function(){
+    var files=Array.prototype.slice.call(inp.files||[]);inp.value="";
+    files.reduce(function(p,f,i){return p.then(function(){return comprimir(f).then(function(data){
+      var n=Date.now()+"_"+i, id=V.visita_id+"_"+sec.k+"_"+n;
+      return tx("fotos","readwrite",function(s){s.put({id:id,visita_id:V.visita_id,seccion:sec.k,grupo:sec.n,archivo:(V.inicio.slice(0,10).replace(/-/g,""))+"_"+TIENDA.id+"_"+sec.k+"_"+V.visita_id.slice(0,8)+"_"+n+".jpg",mime:"image/jpeg",data:data,estado:"borrador"})})
+    }).catch(function(){alert("No pude leer una de las fotos. Intente tomarla de nuevo.")})})},Promise.resolve()).then(pintar).then(actualizarBoton);
+  });
+  cont.appendChild(lab);cont.appendChild(mini);pintar();
+}
+
+function pintarVisita(){
+  var j=TIENDA, v=$("vVisita"); v.textContent="";
+  var borr=LS.get(claveBorrador(),null);
+  V=(borr&&borr.visita_id)?borr:nuevaVisita(); guardarBorrador();
+  var P=LS.get("vitad_persona",{});
+  if(P.rol&&["Mercaderista Eficacia","Mercadeo Compartido","Líder Alquería","Otros (Alquería/Vitad)"].indexOf(P.rol)<0){P.rol="";LS.set("vitad_persona",P)}
+  var barra=el("div","barra");
+  var volver=el("button","btn","← Volver al inventario");volver.type="button";
+  volver.addEventListener("click",function(){history.pushState({t:j.id},"","?t="+encodeURIComponent(j.id));mostrar("vTienda")});
+  barra.appendChild(volver);v.appendChild(barra);
+  v.appendChild(el("h2",null,"Visita · "+j.tienda));
+  v.appendChild(el("p","meta","Lo que marque se guarda en este celular mientras tanto. Nada se envía hasta que presione Guardar visita."));
+  if(!LS_OK)v.appendChild(el("div","aviso alerta","Este navegador no guarda borradores. Termine y guarde la visita antes de cerrar la página."));
+
+  /* quién */
+  v.appendChild(el("h3","sec","1. Quién visita"));
+  var cn=el("div","campo"),ln=el("label",null,"Nombre y apellido"),inN=el("input");inN.type="text";inN.id="pNombre";ln.htmlFor="pNombre";inN.value=P.nombre||"";inN.autocomplete="name";
+  cn.appendChild(ln);cn.appendChild(inN);v.appendChild(cn);
+  var cr=el("div","campo");cr.appendChild(el("label",null,"Rol"));var ops=el("div","ops");
+  ["Mercaderista Eficacia","Mercadeo Compartido","Líder Alquería","Otros (Alquería/Vitad)"].forEach(function(o){var b=el("button",null,o);b.type="button";b.setAttribute("aria-pressed",P.rol===o?"true":"false");
+    b.addEventListener("click",function(){P.rol=(P.rol===o?"":o);LS.set("vitad_persona",P);Array.prototype.forEach.call(ops.children,function(x){x.setAttribute("aria-pressed",P.rol===x.textContent?"true":"false")});actualizarBoton()});ops.appendChild(b)});
+  cr.appendChild(ops);v.appendChild(cr);
+  var cc=el("div","campo"),lc=el("label",null,"Palabra clave"),inC=el("input");inC.type="text";inC.id="pCodigo";lc.htmlFor="pCodigo";inC.value=P.codigo||"";inC.autocapitalize="characters";inC.autocomplete="off";
+  cc.appendChild(lc);cc.appendChild(inC);v.appendChild(cc);
+  [inN,inC].forEach(function(i){i.addEventListener("input",function(){P.nombre=inN.value.trim();P.codigo=inC.value.trim();LS.set("vitad_persona",P);actualizarBoton()})});
+
+  /* llegada */
+  v.appendChild(el("h3","sec","2. Llegada"));
+  var lleg=el("div");v.appendChild(lleg);
+  function pintarLlegada(){lleg.textContent="";var c=V.checkin;
+    if(c&&c.estado){var txt={gps:"Llegada registrada a las "+c.hora.slice(11,16)+", a "+fnum(c.distancia_m)+" m de la tienda.",
+      lejos_confirmado:"Llegada confirmada a las "+c.hora.slice(11,16)+". El celular estaba a "+fnum(c.distancia_m)+" m de la tienda.",
+      sin_coordenadas:"Llegada registrada a las "+c.hora.slice(11,16)+". Esta tienda no tiene coordenadas; se guardó la ubicación del celular.",
+      manual:"Llegada registrada a las "+c.hora.slice(11,16)+" sin ubicación."}[c.estado];
+      lleg.appendChild(el("div","aviso ok",txt));
+      var otra=el("button","btn","Registrar la llegada de nuevo");otra.type="button";otra.addEventListener("click",function(){V.checkin=null;guardarBorrador();pintarLlegada();actualizarBoton()});lleg.appendChild(otra);return}
+    if(c&&c.pendiente==="lejos"){
+      lleg.appendChild(el("div","aviso espera","El celular está a "+fnum(c.distancia_m)+" m de la tienda. Confirme solo si está en ella."));
+      var si=el("button","btn prim","Sí, estoy en la tienda");si.type="button";si.addEventListener("click",function(){c.estado="lejos_confirmado";delete c.pendiente;guardarBorrador();pintarLlegada();actualizarBoton()});
+      lleg.appendChild(si);return}
+    var b=el("button","btn prim","Llegué a esta tienda");b.type="button";lleg.appendChild(b);
+    b.addEventListener("click",function(){b.disabled=true;b.textContent="Buscando ubicación…";
+      if(!navigator.geolocation){V.checkin={estado:"manual",hora:ahora()};guardarBorrador();pintarLlegada();actualizarBoton();return}
+      navigator.geolocation.getCurrentPosition(function(p){
+        var la=p.coords.latitude,lo=p.coords.longitude,h=ahora();
+        if(j.lat==null){V.checkin={estado:"sin_coordenadas",hora:h,lat:la,lon:lo,distancia_m:""}}
+        else{var dm=distanciaM(la,lo,j.lat,j.lon);V.checkin={hora:h,lat:la,lon:lo,distancia_m:dm};if(dm<=META.radio_m)V.checkin.estado="gps";else V.checkin.pendiente="lejos"}
+        guardarBorrador();pintarLlegada();actualizarBoton();
+      },function(){V.checkin={estado:"manual",hora:ahora()};guardarBorrador();pintarLlegada();actualizarBoton()},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+    });
+  }
+  pintarLlegada();
+
+  /* referencias señaladas */
+  var m=refsMarcadas(j);
+  v.appendChild(el("h3","sec","3. Referencias señaladas"));
+  if(!m.rev.length&&!m.ago.length&&!m.dejo.length)v.appendChild(el("div","aviso ok","Esta tienda no tiene referencias señaladas."));
+  if(m.dejo.length){var s3=el("section","caja alerta");s3.appendChild(el("h3",null,"Dejó de pedir ("+m.dejo.length+"): ¿qué encontró?"));
+    m.dejo.forEach(function(r){var p=el("div","preg");p.appendChild(el("div","q",r.n));p.appendChild(el("div","d",r.g+" · promedio "+fnum(r.prom)+" unid cada 30 días · último despacho "+fdia(r.ult)));
+      p.appendChild(grupoBotones("dejo|"+r.ean+"|hallazgo",OPC_DEJO));s3.appendChild(p)});v.appendChild(s3)}
+  if(m.rev.length){var s=el("section","caja espera");s.appendChild(el("h3",null,"Con existencias y más de "+META.umbral_sin_venta+" días sin venta ("+m.rev.length+"): ¿qué encontró?"));
+    m.rev.forEach(function(r){var p=el("div","preg");p.appendChild(el("div","q",r.n));p.appendChild(el("div","d",r.g+" · "+fnum(r.e)+" unid en sistema · "+fsv(r.s)));
+      p.appendChild(grupoBotones("revisar|"+r.ean+"|hallazgo",OPC_REVISAR));s.appendChild(p)});v.appendChild(s)}
+  if(m.ago.length){var s2=el("section","caja alerta");s2.appendChild(el("h3",null,"Agotadas en sistema ("+m.ago.length+")"));
+    m.ago.forEach(function(r){var p=el("div","preg");p.appendChild(el("div","q",r.n));p.appendChild(el("div","d",r.g+" · "+fnum(r.v)+" vendidas en "+META.ventana+" días"));
+      p.appendChild(grupoBotones("agotada|"+r.ean+"|confirmada",["Confirmo que está agotada"],"alerta"));s2.appendChild(p)});v.appendChild(s2)}
+
+  /* dinamicas pagadas */
+  var nsec=4, hoyV=ahora().slice(0,10), dn=j.din||{exh:[],promo:[]};
+  var exV=dn.exh.map(function(r,i){return {r:r,i:i}}).filter(function(x){return x.r.ini<=hoyV&&x.r.fin>=hoyV});
+  var prV=gruposPromo(dn.promo).filter(function(G){return G.ini<=hoyV&&G.fin>=hoyV});
+  if(exV.length||prV.length){
+    v.appendChild(el("h3","sec",nsec+". Dinámicas pagadas"));nsec++;
+    var sd=el("section","caja din");sd.appendChild(el("h3",null,"¿Están montadas hoy?"));
+    exV.forEach(function(x){var p=el("div","preg");p.appendChild(el("div","q","Exhibición pagada: "+x.r.tipo));
+      p.appendChild(el("div","d",x.r.plan+" · "+fvig(x.r)));
+      var c=el("div","campo");c.appendChild(el("label",null,"Exhibición montada"));c.appendChild(grupoBotones("din|e"+x.i+"|montada",["Sí","No","Incompleta"]));p.appendChild(c);sd.appendChild(p)});
+    prV.forEach(function(G){var p=el("div","preg");p.appendChild(el("div","q","Promoción: "+G.ev));
+      p.appendChild(el("div","d",G.items.map(function(r){return r.dcto+" "+r.ref}).join(" · ")+" · "+fvig(G)));
+      var c=el("div","campo");c.appendChild(el("label",null,"Descuento aplicado en góndola"));c.appendChild(grupoBotones("din|p"+G.i+"|aplicado",["Sí","No","En parte"]));p.appendChild(c);sd.appendChild(p)});
+    var pf=el("div","preg");pf.appendChild(el("div","q","Fotos de la exhibición o de la promoción"));seccionFotos({k:"dinamicas",n:"Dinámicas pagadas"},pf);sd.appendChild(pf);
+    v.appendChild(sd);
+  }
+
+  /* fotos y exhibición */
+  v.appendChild(el("h3","sec",(nsec++)+". Fotos y exhibición por sección"));
+  v.appendChild(el("p","meta","Ninguna es obligatoria. Si un grupo no está en la tienda, márquelo."));
+  SECCIONES.forEach(function(sec){
+    var s=el("section","caja gris");s.appendChild(el("h3",null,sec.n));var cuerpo=el("div","preg");s.appendChild(cuerpo);
+    seccionFotos(sec,cuerpo);
+    if(sec.g){
+      [["Marca","exh|marca",["Junta","Dispersa"]],["Etiquetas de precio","exh|etiquetas",["Completas","Faltan"]],["Material publicitario","exh|pop",["Sí","No"]]].forEach(function(q){
+        var c=el("div","campo");c.appendChild(el("label",null,q[0]));c.appendChild(grupoBotones(sec.k+"|"+q[1],q[2]));cuerpo.appendChild(c)});
+      cuerpo.appendChild(grupoBotones(sec.k+"|exh|no_esta",["Este grupo no está en la tienda"]));
+    }else{
+      cuerpo.appendChild(campoTexto("otras|exh|donde","¿Dónde está la exhibición adicional?","text","Ej.: punta de góndola, caja, nevera"));
+    }
+    v.appendChild(s);
+  });
+
+  /* revisión completa */
+  var det=el("details","grupo");var sm=el("summary");sm.appendChild(el("span","t",(nsec++)+". Revisión completa por referencia"));sm.appendChild(el("span","s","opcional"));det.appendChild(sm);
+  j.grupos.forEach(function(g){var sec=SECCIONES.filter(function(x){return x.g===g.g})[0];var k0=sec?sec.k:"otras";
+    det.appendChild(el("div","preg",g.g)).style.fontWeight="700";
+    g.refs.forEach(function(r){var p=el("div","preg");p.appendChild(el("div","q",r.n));
+      var a=el("div","campo");a.appendChild(el("label",null,"En góndola"));a.appendChild(grupoBotones(k0+"|ref|"+r.ean+"|gondola",["Sí","Solo 1","No"]));p.appendChild(a);
+      var b=el("div","campo");b.appendChild(el("label",null,"Etiqueta de precio"));b.appendChild(grupoBotones(k0+"|ref|"+r.ean+"|etiqueta",["Bien","Mal","No hay"]));p.appendChild(b);
+      p.appendChild(campoTexto(k0+"|ref|"+r.ean+"|precio","Precio en la etiqueta","number","Ej.: 9250"));
+      det.appendChild(p)})});
+  v.appendChild(det);
+
+  /* observación */
+  v.appendChild(el("h3","sec",nsec+". Observación"));
+  v.appendChild(campoTexto("general|observacion","Lo que quiera contar de la tienda","area",""));
+
+  var g=el("button","btn prim","Guardar visita");g.type="button";g.id="btnGuardar";g.style.marginTop="1rem";
+  g.addEventListener("click",guardarVisita);v.appendChild(g);
+  v.appendChild(el("p","ayuda",""));$("vVisita").lastChild.id="faltan";
+  actualizarBoton();
+}
+function faltantes(){var P=LS.get("vitad_persona",{}),f=[];
+  if(!($("pNombre")&&$("pNombre").value.trim()))f.push("su nombre");
+  if(!P.rol)f.push("su rol");
+  if(!($("pCodigo")&&$("pCodigo").value.trim()))f.push("la palabra clave");
+  if(!(V&&V.checkin&&V.checkin.estado))f.push("la llegada a la tienda");
+  return f}
+function actualizarBoton(){var b=$("btnGuardar"),t=$("faltan");if(!b)return;var f=faltantes();b.disabled=f.length>0;if(t)t.textContent=f.length?"Para guardar falta: "+f.join(", ")+".":""}
+
+function respuestas(){var out=[];
+  Object.keys(V.r).forEach(function(k){var p=k.split("|"),r={hora:V.horas[k]||""},sec;
+    if(p[0]==="revisar"||p[0]==="agotada"||p[0]==="dejo"){var ref=buscarRef(p[1]);r.grupo=ref?ref.g:"";r.seccion={revisar:"Revise primero",agotada:"Agotada",dejo:"Dejó de pedir"}[p[0]];r.ean=p[1];r.referencia=ref?ref.n:"";r.campo=p[2]}
+    else if(p[0]==="general"){r.grupo="";r.seccion="General";r.campo=p[1]}
+    else if(p[0]==="din"){var dn=TIENDA.din||{exh:[],promo:[]},ex=p[1].charAt(0)==="e",it=(ex?dn.exh:dn.promo)[parseInt(p[1].slice(1),10)]||{};
+      r.grupo="Dinámicas pagadas";r.seccion=ex?"Exhibición pagada":"Promoción de precio";
+      var Gp=ex?null:gruposPromo(dn.promo).filter(function(G){return G.i===parseInt(p[1].slice(1),10)})[0];
+      r.referencia=ex?(it.plan||"")+" · "+(it.tipo||""):(it.ev||"")+" · "+(Gp?Gp.items.map(function(z){return z.dcto+" "+z.ref}).join(" · "):"")+" · "+(it.ini||"")+" a "+(it.fin||"");r.ean="";r.campo=p[2]}
+    else{sec=SECCIONES.filter(function(s){return s.k===p[0]})[0];r.grupo=sec?sec.n:p[0];
+      if(p[1]==="exh"){r.seccion="Exhibición";r.campo=p[2]}
+      else{var rf=buscarRef(p[2]);r.seccion="Revisión completa";r.ean=p[2];r.referencia=rf?rf.n:"";r.campo=p[3]}}
+    r.valor=V.r[k];out.push(r)});
+  return out}
+function buscarRef(ean){var x=null;TIENDA.grupos.forEach(function(g){g.refs.forEach(function(r){if(r.ean===ean)x={n:r.n,g:g.g}})});
+  (TIENDA.dejo||[]).forEach(function(r){if(!x&&r.ean===ean)x={n:r.n,g:r.g}});return x}
+
+function guardarVisita(){
+  if(faltantes().length)return;
+  var P=LS.get("vitad_persona",{});P.nombre=$("pNombre").value.trim();P.codigo=$("pCodigo").value.trim();LS.set("vitad_persona",P);
+  var c=V.checkin||{};
+  todas("fotos").then(function(fs){
+    var mias=fs.filter(function(f){return f.visita_id===V.visita_id&&f.estado==="borrador"});
+    var carga={codigo:P.codigo,tipo:"visita",visita:{visita_id:V.visita_id,inicio:V.inicio,fin:ahora(),persona:P.nombre,rol:P.rol,
+      tienda_id:TIENDA.id,tienda:TIENDA.tienda,cadena:TIENDA.cadena,ciudad:TIENDA.ciudad||"",latitud:c.lat==null?"":c.lat,longitud:c.lon==null?"":c.lon,
+      distancia_m:c.distancia_m==null?"":c.distancia_m,checkin:c.estado,n_fotos:mias.length,inventario_al:TIENDA.foto||("sell-in "+TIENDA.despacho_hasta),version:VERSION},respuestas:respuestas()};
+    return tx("cola","readwrite",function(s){s.put({visita_id:V.visita_id,carga:carga,creada:ahora()})}).then(function(){
+      return tx("fotos","readwrite",function(s){mias.forEach(function(f){f.estado="pendiente";f.tienda_id=TIENDA.id;f.tienda=TIENDA.tienda;s.put(f)})})});
+  }).then(function(){
+    LS.del(claveBorrador()); V=null;
+    var v=$("vVisita");v.textContent="";
+    v.appendChild(el("h2",null,"Visita guardada"));
+    var msg=el("div","aviso gris","Enviando a la hoja de visitas…");msg.id="msgEnvio";v.appendChild(msg);
+    var b=el("button","btn prim","Volver al inventario de la tienda");b.type="button";b.addEventListener("click",function(){history.pushState({t:TIENDA.id},"","?t="+encodeURIComponent(TIENDA.id));mostrar("vTienda")});v.appendChild(b);
+    window.scrollTo(0,0);
+    return procesarCola();
+  }).catch(function(e){alert("No pude guardar la visita en este celular: "+e)});
+}
+
+/* ------------------------------------------------------------ envío */
+var ENVIANDO=false;
+function enviar(obj){return fetch(META.endpoint,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj),redirect:"follow"}).then(function(r){return r.json()})}
+function procesarCola(){
+  if(ENVIANDO||!META)return Promise.resolve();ENVIANDO=true;var errCodigo=false,errRed=false;
+  return todas("cola").then(function(cola){
+    return cola.reduce(function(p,it){return p.then(function(){
+      if(errCodigo)return;
+      var cod=(LS.get("vitad_persona",{}).codigo)||it.carga.codigo;it.carga.codigo=cod;
+      return enviar(it.carga).then(function(r){
+        if(r&&r.ok)return tx("cola","readwrite",function(s){s.delete(it.visita_id)});
+        if(r&&r.error==="codigo"){errCodigo=true}else{errRed=true}
+      },function(){errRed=true})})},Promise.resolve());
+  }).then(function(){return Promise.all([todas("fotos"),todas("cola")])}).then(function(x){
+    var fotos=x[0].filter(function(f){return f.estado==="pendiente"}),colaIds=x[1].map(function(c){return c.visita_id});
+    return fotos.reduce(function(p,f){return p.then(function(){
+      if(errCodigo||colaIds.indexOf(f.visita_id)>=0)return;
+      return enviar({codigo:LS.get("vitad_persona",{}).codigo,tipo:"foto",foto:{visita_id:f.visita_id,tienda_id:f.tienda_id,tienda:f.tienda,grupo:f.grupo,archivo:f.archivo,mime:f.mime,data:f.data}}).then(function(r){
+        if(r&&r.ok)return tx("fotos","readwrite",function(s){s.delete(f.id)});
+        if(r&&r.error==="codigo"){errCodigo=true}else{errRed=true}
+      },function(){errRed=true})})},Promise.resolve());
+  }).then(function(){ENVIANDO=false;return pintarEstado(errCodigo,errRed)},function(){ENVIANDO=false;return pintarEstado(false,true)});
+}
+function pintarEstado(errCodigo,errRed){
+  return Promise.all([todas("cola"),todas("fotos")]).then(function(x){
+    var nv=x[0].length,nf=x[1].filter(function(f){return f.estado==="pendiente"}).length,bar=$("estado"),t=$("estadoTxt"),msg=$("msgEnvio");
+    if(!nv&&!nf){bar.className="oculto";if(msg){msg.className="aviso ok";msg.textContent="Listo: la visita y sus fotos llegaron a la hoja de visitas."}return}
+    var txt=(nv?nv+(nv===1?" visita":" visitas"):"")+(nv&&nf?" y ":"")+(nf?nf+(nf===1?" foto":" fotos"):"")+" pendientes por enviar.";
+    if(errCodigo)txt="La palabra clave no es válida. Corríjala en Registrar visita y presione Enviar ahora. "+txt;
+    else if(errRed)txt="Sin señal o la hoja no respondió. Se guardó en este celular y se enviará solo. "+txt;
+    bar.className=errCodigo?"rojo":"";t.textContent=txt;
+    if(msg){msg.className=errCodigo?"aviso alerta":"aviso espera";msg.textContent=errCodigo?"La visita quedó guardada en este celular, pero la palabra clave no es válida. Corríjala y presione Enviar ahora.":"La visita quedó guardada en este celular. Se enviará sola cuando haya señal; no cierre ni borre los datos del navegador."}
+  })}
+
+/* ------------------------------------------------------------ navegación */
+function mostrar(id){["vBuscar","vTienda","vVisita"].forEach(function(x){$(x).classList.toggle("oculto",x!==id)});$("pie").classList.toggle("oculto",id==="vVisita");window.scrollTo(0,0);
+  document.title=id==="vBuscar"?"Vitad · Inventario en tienda":(TIENDA?TIENDA.tienda+" · Vitad":"Vitad")}
+function abrirVisita(){pintarVisita();mostrar("vVisita")}
+var GRUPOS={};
+function grupo(id){var h=0;for(var i=0;i<id.length;i++){h=(Math.imul(h,31)+id.charCodeAt(i))>>>0}return h%64}
+function cargarTienda(id){var g=grupo(id),n=("0"+g).slice(-2);
+  var p=GRUPOS[g]||(GRUPOS[g]=fetch("t/g"+n+".json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).catch(function(e){delete GRUPOS[g];throw e}));
+  return p.then(function(d){if(!d[id])throw new Error("sin tienda");return d[id]})}
+function abrir(id,empujar,visita){
+  cargarTienda(id).then(function(j){
+    TIENDA=j;if(empujar)history.pushState({t:id},"","?t="+encodeURIComponent(id));
+    pintarTienda(j);if(visita)abrirVisita();else mostrar("vTienda");
+  }).catch(function(){$("nres").textContent="No pude abrir esa tienda. Revise la señal e intente de nuevo.";mostrar("vBuscar")});
+}
+function desdeUrl(){var q=new URLSearchParams(location.search),t=q.get("t");if(t)abrir(t,false,q.get("visita")==="1");else mostrar("vBuscar")}
+
+window.__vitadPrueba={cerrarDB:function(){try{DB&&DB.close()}catch(e){}}};
+$("reintentar").addEventListener("click",function(){procesarCola()});
+window.addEventListener("online",function(){procesarCola()});
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&DB){try{DB.close()}catch(e){}DB=null;conDB()}});
+setInterval(function(){if(navigator.onLine!==false)procesarCola()},60000);
+
+conDB().then(function(){return fetch("indice.json",{cache:"no-cache"})}).then(function(r){return r.json()}).then(function(d){
+  IND=d.tiendas; META=d.meta; pintarCortes(); buscar(); desdeUrl();
+  $("q").addEventListener("input",buscar);
+  window.addEventListener("popstate",desdeUrl);
+  procesarCola();
+}).catch(function(){$("cortes").textContent="No pude cargar los datos. Revise la señal y recargue la página."});
+})();
+</script>
+</body>
+</html>
